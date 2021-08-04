@@ -18,10 +18,13 @@ namespace Sky_ChatClient
             clientData = new ClientData();
             ConnectServer();
             SendHeader();
-            client.GetStream().BeginRead(clientData.messageData, 0, clientData.messageData.Length, new AsyncCallback(ReceiveMesasage), clientData);
-            Thread sendMessageThread = new Thread(new ThreadStart (SendMessage) );
+            Thread sendMessageThread = new Thread(new ThreadStart(SendMessage));
             sendMessageThread.Start();
-
+            //ReadLineAsync();
+            Thread readMessageThread = new Thread(new ThreadStart(ReceiveMesasage));
+            readMessageThread.Start();
+            //readMessageThread.Join();
+            //client.GetStream().BeginRead(clientData.messageData, 0, clientData.messageData.Length, new AsyncCallback(ReceiveMesasage), clientData);
         }
 
         //서버 연결
@@ -62,35 +65,28 @@ namespace Sky_ChatClient
         //메세지 전송
         private void SendMessage()
         {
-            while (true)
-            {
-                string message = "$$#$$Message$$#$$" + clientData.ipAdress + "$$#$$" + clientData.clientName + "$$#$$" + Console.ReadLine() + "$$#$$Message$$#$$";
-                Console.WriteLine("\n");
+                string message = "$$#$$Message$$#$$" + "All" + "$$#$$" + clientData.clientName + "$$#$$" + Console.ReadLine() + "$$#$$Message$$#$$";
                 byte[] byteData = new byte[message.Length];
                 byteData = Encoding.UTF8.GetBytes(message);
                 client.GetStream().Write(byteData, 0, byteData.Length);
-            }
         }
 
         //메세지를 받아 헤더에 맞는 작업을 진행합니다.
-        private void ReceiveMesasage(IAsyncResult ar)
+        private void ReceiveMesasage()
         {
-            ClientData callbackClient = ar.AsyncState as ClientData;
-            int bytesRead = callbackClient.client.GetStream().EndRead(ar);
-            string readString = Encoding.UTF8.GetString(callbackClient.messageData, 0, bytesRead);
-            string[] messageData = readString.Split("$$#$$");
-
-            if (messageData[1] == "Message" && callbackClient.clientName != null)
+            while (true)
             {
-                Console.WriteLine("{0} : {1}", messageData[3], messageData[4]);
+                byte[] messagePacket = new byte[1024];
+                client.GetStream().Read(messagePacket, 0, messagePacket.Length);
+                string readString = Encoding.UTF8.GetString(messagePacket);
+                string[] messageData = readString.Split("$$#$$");
+
+                if (messageData[1] == "Message")
+                {
+                    Console.WriteLine("{0} : {1}", messageData[2], messageData[3]);
+                }
+
             }
-
-            else
-            {
-            }
-
-            callbackClient.client.GetStream().BeginRead(callbackClient.messageData, 0, callbackClient.messageData.Length, new AsyncCallback(ReceiveMesasage), callbackClient);
-
         }
     }
 }
