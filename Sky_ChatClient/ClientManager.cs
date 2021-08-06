@@ -47,7 +47,7 @@ namespace Sky_ChatClient
         //서버에 자신의 정보 헤더파일 전송
         private void SendHeader()
         {
-            string headerText = "$$#$$UserInfo$$#$$" + clientData.clientName + "$$#$$" + clientData.testType + "$$#$$UserInfo$$#$$";
+            string headerText = "$$#$$UserInfo$$#$$" + clientData.clientName + "$$#$$" + clientData.testType + "$$#$$" + clientData.chattingRoom + "$$#$$UserInfo$$#$$";
             byte[] header = new byte[headerText.Length];
             header = Encoding.UTF8.GetBytes(headerText);
             client.GetStream().Write(header, 0, header.Length);
@@ -65,7 +65,7 @@ namespace Sky_ChatClient
         //메세지 전송
         private void SendMessage()
         {
-                string message = "$$#$$Message$$#$$" + "All" + "$$#$$" + clientData.clientName + "$$#$$" + Console.ReadLine() + "$$#$$Message$$#$$";
+                string message = "$$#$$Message$$#$$" + clientData.chattingRoom + "$$#$$" + "All" +  "$$#$$" + clientData.clientName + "$$#$$" + Console.ReadLine() + "$$#$$Message$$#$$";
                 byte[] byteData = new byte[message.Length];
                 byteData = Encoding.UTF8.GetBytes(message);
                 client.GetStream().Write(byteData, 0, byteData.Length);
